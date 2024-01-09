@@ -1,0 +1,11 @@
+*.csv
+*.tsv
+*.json
+*.xlsx
+*.xls
+*/__pycache__
+*/*/__pycache__
+*/*/*/__pycache__
+*.out
+/wandb
+*/wandb
