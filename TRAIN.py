@@ -20,9 +20,9 @@ model_name: str = DefaultVal(None) # DefaultVal('bert-base-uncased')
 
 checkpoint = 'colbert-ir/colbertv2.0'
 if __name__=='__main__':
-    triples="/mnt/vdb1/Datasets/18_categories/ColBERT_dataset/triples.json"
-    queries="/mnt/vdb1/Datasets/18_categories/ColBERT_dataset/queries_train.tsv"
-    collection="/mnt/vdb1/Datasets/18_categories/ColBERT_dataset/documents_train.tsv"
+    triples="/mnt/vdb1/Datasets/ColBERT/18_categories/triples.json"
+    queries="/mnt/vdb1/Datasets/ColBERT/18_categories/queries_train.tsv"
+    collection="/mnt/vdb1/Datasets/ColBERT/18_categories/documents_train.tsv"
     # DocSettings:
     doc_maxlen=180
     dim=128
