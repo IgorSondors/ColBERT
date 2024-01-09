@@ -33,3 +33,7 @@ document and the third one the id of an irrelevant document.
 ### Hyperparameters
 
 There is no description yet, but all hyperparameters could be seen [there](https://github.com/IgorSondors/ColBERT/blob/main/colbert/infra/config/settings.py)
+
+### Settings
+
+To set cuda/cpu usage and stepts of ckpt to save go [there](https://github.com/IgorSondors/ColBERT/blob/main/colbert/parameters.py) 
