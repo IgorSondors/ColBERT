@@ -20,7 +20,7 @@ model_name: str = DefaultVal(None) # DefaultVal('bert-base-uncased')
 
 checkpoint = 'colbert-ir/colbertv2.0'
 if __name__=='__main__':
-    triples="/home/sondors/Documents/price/BERT_data/data/18_categories/ColBERT_dataset/triples_20.json"
+    triples="/home/sondors/Documents/price/BERT_data/data/18_categories/ColBERT_dataset/triples_20_shufle.json"
     queries="/home/sondors/Documents/price/BERT_data/data/18_categories/ColBERT_dataset/queries_train.tsv"
     collection="/home/sondors/Documents/price/BERT_data/data/18_categories/ColBERT_dataset/documents_train.tsv"
     
@@ -37,7 +37,7 @@ if __name__=='__main__':
     lr=1e-05
     warmup=0                                    # через сколько шагов сделать warmup до изначального lr
     bsize=1
-    accumsteps=1                                # на сколько элементов из батча аккумулировать лосс
+    accumsteps=bsize                            # на сколько элементов из батча аккумулировать лосс
     n_triplets = sum(1 for _ in open(triples))  # количество строк в triples.json
     steps_per_epoch = int(n_triplets/bsize)     # количество батчей в эпохе. ColBERT обучается по всем строкам файла один раз без эпох
 
