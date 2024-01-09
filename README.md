@@ -29,3 +29,7 @@ The file triples.json contains the training triples and has the following format
 
 The first component is the id of the query, the second one the id of a relevant 
 document and the third one the id of an irrelevant document.
+
+### Hyperparameters
+
+There is no description yet, but all hyperparameters could be seen [there](https://github.com/IgorSondors/ColBERT/blob/main/colbert/infra/config/settings.py)
