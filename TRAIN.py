@@ -36,7 +36,7 @@ if __name__=='__main__':
     lr=1e-05
     warmup=0                                    # через сколько шагов сделать warmup до изначального lr
     bsize=128
-    accumsteps=bsize                            # на сколько элементов из батча аккумулировать лосс
+    accumsteps=1                            # на сколько элементов из батча аккумулировать лосс
     n_triplets = sum(1 for _ in open(triples))  # количество строк в triples.json
     steps_per_epoch = int(n_triplets/bsize)     # количество батчей в эпохе. ColBERT обучается по всем строкам файла один раз без эпох
 

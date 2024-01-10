@@ -8,5 +8,6 @@
 */*/__pycache__
 */*/*/__pycache__
 *.out
+/experiments
 /wandb
 */wandb
