@@ -28,8 +28,8 @@ def search(checkpoint, offers, models, nbits, doc_maxlen):
     return rankings
 
 if __name__=='__main__':
-    models = '/mnt/vdb1/Datasets/ColBERT/18_categories/metrics_data/models.tsv'
-    offers = '/mnt/vdb1/Datasets/ColBERT/18_categories/metrics_data/offers.tsv'
+    models = '/mnt/vdb1/Datasets/ColBERT/18_categories/test/models.tsv'
+    offers = '/mnt/vdb1/Datasets/ColBERT/18_categories/test/offers.tsv'
     nbits = 2   # encode each dimension with 2 bits
     doc_maxlen = 300
 
@@ -37,11 +37,11 @@ if __name__=='__main__':
     models = Collection(path=models)
     f'Loaded {len(offers)} queries and {len(models):,} passages'
 
-    ckpts_pth = "/mnt/vdb1/ColBERT/experiments/HYPERPARAM/none/2024-01/09/22.18.23/checkpoints"
+    ckpts_pth = "/mnt/vdb1/ColBERT/experiments/HYPERPARAM_accum/none/2024-01/10/10.44.49/checkpoints"
     for checkpoint in os.listdir(ckpts_pth):
         ckpt_pth = os.path.join(ckpts_pth, checkpoint)
         print(ckpt_pth)
         
         rankings = search(ckpt_pth, offers, models, nbits, doc_maxlen)
-        with open(f'/mnt/vdb1/Datasets/ColBERT/18_categories/metrics_data/EVAL/triples_{checkpoint}.json', 'w') as fp:
+        with open(f'/mnt/vdb1/Datasets/ColBERT/18_categories/metrics_data/EVAL/triplets_accum/triples_accum_{checkpoint}.json', 'w') as fp:
             json.dump(rankings, fp)
