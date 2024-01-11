@@ -22,6 +22,8 @@ def search(checkpoint, offers, models, nbits, doc_maxlen, tmp_fld):
 
     offers = Queries(path=offers)
     models = Collection(path=models)
+    with open(f"{tmp_fld}/logs.txt", "a") as txt:
+        txt.write(f"Loaded {len(offers)} queries and {len(models):,} passages")
 
     start_time = time.time()
     with Run().context(RunConfig(nranks=1, experiment='notebook')):  # nranks specifies the number of GPUs to use.
