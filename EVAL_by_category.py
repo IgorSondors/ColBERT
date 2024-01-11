@@ -54,7 +54,8 @@ def ranking_index(rankings, category_rankings, df, index_of_first):
     """
 
     for i in category_rankings:
-        for j in range(5):
+        print(i)
+        for j in range(len(category_rankings[i])):
             category_rankings[i][j] = (category_rankings[i][j][0] + index_of_first, category_rankings[i][j][1], category_rankings[i][j][2])
             
     i = -1
