@@ -52,11 +52,16 @@ def ranking_index(rankings, category_rankings, df, index_of_first):
     сделать сдвиг passage_id на величину index_of_first для приведения к формату в котором поиск оффера ведется среди моделей всех категорий 
     упорядочить (passage_id, rank, score) в rankings согласно изначальным индексам в df_offers
     """
+    assert len(category_rankings) == len(df)
 
     for i in category_rankings:
         for j in range(len(category_rankings[i])):
             category_rankings[i][j] = (category_rankings[i][j][0] + index_of_first, category_rankings[i][j][1], category_rankings[i][j][2])
-            
+
+        for k in range(5 - len(category_rankings[i])): # все предикты top-k делаем длиной 5
+            category_rankings[i].append((0, 0, 0))#((index_of_first, 0, 0))#(category_rankings[i][- 1])
+        assert len(category_rankings[i]) == 5
+
     i = -1
     for index, row in df.iterrows():
         i += 1
