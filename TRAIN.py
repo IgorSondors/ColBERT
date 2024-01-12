@@ -40,7 +40,7 @@ if __name__=='__main__':
     steps_per_epoch = int(n_triplets/bsize)     # количество батчей в эпохе. ColBERT обучается по всем строкам файла один раз без эпох
     warmup=steps_per_epoch//10                  # через сколько шагов сделать warmup до изначального lr
 
-    with Run().context(RunConfig(nranks=1, experiment="HYPERPARAM_shuffle")): # nranks - число видеокарт
+    with Run().context(RunConfig(nranks=1, experiment="HYPERPARAM_shuffle_warmup")): # nranks - число видеокарт
         config = ColBERTConfig(bsize=bsize, 
                                 lr=lr, 
                                 warmup=warmup, 
