@@ -54,7 +54,6 @@ def ranking_index(rankings, category_rankings, df, index_of_first):
     """
 
     for i in category_rankings:
-        print(i)
         for j in range(len(category_rankings[i])):
             category_rankings[i][j] = (category_rankings[i][j][0] + index_of_first, category_rankings[i][j][1], category_rankings[i][j][2])
             
@@ -111,11 +110,11 @@ def wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json
         txt.write(f"Save pth: {pth_dst_json}\n")
 
 if __name__=='__main__':
-    pth_models = "/mnt/vdb1/Datasets/ColBERT/18_categories/test/models_18_categories.csv"
-    pth_offers = "/mnt/vdb1/Datasets/ColBERT/18_categories/test/triplets_test_18_categories.csv"
-    tmp_fld = "/mnt/vdb1/ColBERT/tmp"
-    ckpt_pth = "/mnt/vdb1/ColBERT/experiments/HYPERPARAM_shuffle/none/2024-01/10/13.34.30/checkpoints/colbert-9555"
-    pth_dst_json = "/mnt/vdb1/Datasets/ColBERT/18_categories/metrics_data/EVAL/categories_one_by_one/triples_shuffle_colbert-9555.json"
+    pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/models_18_categories.csv"
+    pth_offers = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/triplets_test_18_categories.csv"
+    tmp_fld = "/home/sondors/Documents/price/ColBERT/tmp"
+    ckpt_pth = "/home/sondors/HYPERPARAM/none/2024-01/10/08.58.24/checkpoints/colbert-9555"
+    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/triples_shuffle_colbert-9555.json"
 
     categories = [
         "диктофоны, портативные рекордеры",
