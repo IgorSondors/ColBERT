@@ -34,11 +34,11 @@ if __name__=='__main__':
 
     nway=2                                      # https://github.com/stanford-futuredata/ColBERT/issues/245
     lr=1e-05
-    warmup=0                                    # через сколько шагов сделать warmup до изначального lr
     bsize=128
-    accumsteps=1                            # на сколько элементов из батча аккумулировать лосс
+    accumsteps=1                                # на сколько элементов из батча аккумулировать лосс
     n_triplets = sum(1 for _ in open(triples))  # количество строк в triples.json
     steps_per_epoch = int(n_triplets/bsize)     # количество батчей в эпохе. ColBERT обучается по всем строкам файла один раз без эпох
+    warmup=steps_per_epoch//10                  # через сколько шагов сделать warmup до изначального lr
 
     with Run().context(RunConfig(nranks=1, experiment="HYPERPARAM_shuffle")): # nranks - число видеокарт
         config = ColBERTConfig(bsize=bsize, 
