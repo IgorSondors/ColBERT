@@ -23,7 +23,7 @@ def search(checkpoint, offers, models, nbits, doc_maxlen, tmp_fld):
     offers = Queries(path=offers)
     models = Collection(path=models)
     with open(f"{tmp_fld}/logs.txt", "a") as txt:
-        txt.write(f"Loaded {len(offers)} queries and {len(models):,} passages")
+        txt.write(f"\nLoaded {len(offers)} queries and {len(models):,} passages\n")
 
     start_time = time.time()
     with Run().context(RunConfig(nranks=1, experiment='notebook')):  # nranks specifies the number of GPUs to use.
@@ -88,6 +88,8 @@ def prepare_tsv(category_offers, category_models, pth_offers, pth_models):
     document.to_csv(pth_models, sep='\t', header=False, index=False)
     
 def wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json):
+    with open(f"{tmp_fld}/logs.txt", "a") as txt:
+        txt.write(f"ckpt_pth = {ckpt_pth}:\n")
     df_models, df_offers = read_df(pth_models, pth_offers)
 
     doc_maxlen = 300
@@ -95,7 +97,7 @@ def wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json
     rankings = {}
     for category in categories:
         with open(f"{tmp_fld}/logs.txt", "a") as txt:
-            txt.write(f"{category}:\n")
+            txt.write(f"\n{category}:\n")
         print(category)
         index_of_first = df_models.index[df_models['category_name'] == category].tolist()[0]
 
@@ -109,17 +111,16 @@ def wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json
         category_rankings = search(ckpt_pth, pth_offers, pth_models, nbits, doc_maxlen, tmp_fld)
         rankings = ranking_index(rankings, category_rankings, category_offers, index_of_first)
 
-    with open(pth_dst_json, 'w') as fp:
+    with open(pth_dst_json+f"_{ckpt_pth.split('/')[-1]}.json", 'w') as fp:
         json.dump(rankings, fp)
     with open(f"{tmp_fld}/logs.txt", "a") as txt:
-        txt.write(f"Save pth: {pth_dst_json}\n")
+        txt.write(f"Save pth: {pth_dst_json}_{ckpt_pth.split('/')[-1]}.json\n")
 
 if __name__=='__main__':
     pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/models_18_categories.csv"
     pth_offers = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/triplets_test_18_categories.csv"
     tmp_fld = "/home/sondors/Documents/price/ColBERT/tmp"
-    ckpt_pth = "/home/sondors/HYPERPARAM/none/2024-01/10/08.58.24/checkpoints/colbert-9555"
-    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/triples_shuffle_colbert-9555.json"
+    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/triples_X3"
 
     categories = [
         "диктофоны, портативные рекордеры",
@@ -138,6 +139,13 @@ if __name__=='__main__':
         "GPS-навигаторы"
         ]
     
-    wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json)
-    
+    ckpts_pth = "/home/sondors/HYPERPARAM/none/2024-01/09/22.18.23/checkpoints"
+    for checkpoint in os.listdir(ckpts_pth):
+        ckpt_pth = os.path.join(ckpts_pth, checkpoint)
+        
+        all_categories_time = time.time()
+        wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json)
+        with open(f"{tmp_fld}/logs.txt", "a") as txt:
+            txt.write(f"all_categories_time = {time.time() - all_categories_time}\n\n")
+            txt.write("-"*100)
 
