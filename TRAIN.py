@@ -20,7 +20,7 @@ model_name: str = DefaultVal(None) # DefaultVal('bert-base-uncased')
 
 checkpoint = 'colbert-ir/colbertv2.0'
 if __name__=='__main__':
-    triples="/mnt/vdb1/Datasets/ColBERT/18_categories/train/triples_shuffle.json"
+    triples="/mnt/vdb1/Datasets/ColBERT/18_categories/train/triples_X12_shuffle.json"
     queries="/mnt/vdb1/Datasets/ColBERT/18_categories/train/queries_train.tsv"
     collection="/mnt/vdb1/Datasets/ColBERT/18_categories/train/documents_train.tsv"
     # DocSettings:
@@ -34,13 +34,13 @@ if __name__=='__main__':
 
     nway=2                                      # https://github.com/stanford-futuredata/ColBERT/issues/245
     lr=1e-05
-    bsize=128
-    accumsteps=1                                # на сколько элементов из батча аккумулировать лосс
+    bsize=128*12
+    accumsteps=12                               # на сколько элементов из батча аккумулировать лосс
     n_triplets = sum(1 for _ in open(triples))  # количество строк в triples.json
     steps_per_epoch = int(n_triplets/bsize)     # количество батчей в эпохе. ColBERT обучается по всем строкам файла один раз без эпох
-    warmup=steps_per_epoch//10                  # через сколько шагов сделать warmup до изначального lr
+    warmup=0                                    # через сколько шагов сделать warmup до изначального lr
 
-    with Run().context(RunConfig(nranks=1, experiment="HYPERPARAM_shuffle_warmup")): # nranks - число видеокарт
+    with Run().context(RunConfig(nranks=1, experiment="HYPERPARAM_accum_12")): # nranks - число видеокарт
         config = ColBERTConfig(bsize=bsize, 
                                 lr=lr, 
                                 warmup=warmup, 
