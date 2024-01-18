@@ -120,7 +120,7 @@ if __name__=='__main__':
     pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/models_18_categories.csv"
     pth_offers = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/triplets_test_18_categories.csv"
     tmp_fld = "/home/sondors/Documents/price/ColBERT/tmp"
-    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/triples_accum_12"
+    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/triples_X1_13_categories_shuffle"
 
     categories = [
         "диктофоны, портативные рекордеры",
@@ -128,7 +128,7 @@ if __name__=='__main__':
         "автомобильные телевизоры, мониторы",
         "смарт-часы и браслеты",
         "портативные медиаплееры",
-        "чехлы, обложки для гаджетов (телефонов, планшетов etc)",
+        # "чехлы, обложки для гаджетов (телефонов, планшетов etc)",
         "портативная акустика",
         "мобильные телефоны",
         "VR-гарнитуры (VR-очки, шлемы, очки виртуальной реальности, FPV очки для квадрокоптеров)",
@@ -139,13 +139,14 @@ if __name__=='__main__':
         "GPS-навигаторы"
         ]
     
-    ckpts_pth = "/home/sondors/HYPERPARAM_accum_12"
-    for checkpoint in os.listdir(ckpts_pth):
-        ckpt_pth = os.path.join(ckpts_pth, checkpoint)
+    # ckpts_pth = "/home/sondors/HYPERPARAM_accum_12"
+    # for checkpoint in os.listdir(ckpts_pth):
+    #     ckpt_pth = os.path.join(ckpts_pth, checkpoint)
         
-        all_categories_time = time.time()
-        wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json)
-        with open(f"{tmp_fld}/logs.txt", "a") as txt:
-            txt.write(f"all_categories_time = {time.time() - all_categories_time}\n\n")
-            txt.write("-"*100)
+    ckpt_pth = "/home/sondors/Documents/ColBERT_weights/HYPERPARAM_shuffle_13_categories/none/2024-01/18/15.08.53/checkpoints/colbert-5387-finish"
+    all_categories_time = time.time()
+    wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json)
+    with open(f"{tmp_fld}/logs.txt", "a") as txt:
+        txt.write(f"all_categories_time = {time.time() - all_categories_time}\n\n")
+        txt.write("-"*100)
 
