@@ -117,10 +117,10 @@ def wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json
         txt.write(f"Save pth: {pth_dst_json}_{ckpt_pth.split('/')[-1]}.json\n")
 
 if __name__=='__main__':
-    pth_models = "/mnt/vdb1/Datasets/ColBERT/18_categories/test/models_18_categories.csv"
-    pth_offers = "/mnt/vdb1/Datasets/ColBERT/18_categories/test/triplets_test_18_categories.csv"
+    pth_models = "/mnt/vdb1/Datasets/ColBERT_data/18_categories/test/models_18_categories.csv"
+    pth_offers = "/mnt/vdb1/Datasets/ColBERT_data/18_categories/test/triplets_test_18_categories.csv"
     tmp_fld = "/mnt/vdb1/ColBERT/tmp"
-    pth_dst_json = "/mnt/vdb1/ColBERT/tmp/triples_accum_12"
+    pth_dst_json = "/mnt/vdb1/ColBERT/tmp/triples_X1_13_categories_shuffle_bsizeX4"
 
     categories = [
         "диктофоны, портативные рекордеры",
@@ -128,7 +128,7 @@ if __name__=='__main__':
         "автомобильные телевизоры, мониторы",
         "смарт-часы и браслеты",
         "портативные медиаплееры",
-        "чехлы, обложки для гаджетов (телефонов, планшетов etc)",
+        # "чехлы, обложки для гаджетов (телефонов, планшетов etc)",
         "портативная акустика",
         "мобильные телефоны",
         "VR-гарнитуры (VR-очки, шлемы, очки виртуальной реальности, FPV очки для квадрокоптеров)",
@@ -142,7 +142,7 @@ if __name__=='__main__':
     # ckpts_pth = "/home/sondors/HYPERPARAM/none/2024-01/09/22.18.23/checkpoints"
     # for checkpoint in os.listdir(ckpts_pth):
     #     ckpt_pth = os.path.join(ckpts_pth, checkpoint)
-    ckpt_pth = "/mnt/vdb1/ColBERT/experiments/HYPERPARAM_accum_12/none/2024-01/16/13.07.51/checkpoints/colbert-6000-finish"
+    ckpt_pth = "/mnt/vdb1/ColBERT/experiments/HYPERPARAM_shuffle_13_categories_bsizeX4/none/2024-01/18/15.28.07/checkpoints/colbert-1346-finish"
     all_categories_time = time.time()
     wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json)
     with open(f"{tmp_fld}/logs.txt", "a") as txt:
