@@ -120,7 +120,7 @@ if __name__=='__main__':
     pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/models_18_categories.csv"
     pth_offers = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/triplets_test_18_categories.csv"
     tmp_fld = "/home/sondors/Documents/price/ColBERT/tmp"
-    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/triples_X3"
+    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/triples_accum_12"
 
     categories = [
         "диктофоны, портативные рекордеры",
@@ -139,7 +139,7 @@ if __name__=='__main__':
         "GPS-навигаторы"
         ]
     
-    ckpts_pth = "/home/sondors/HYPERPARAM/none/2024-01/09/22.18.23/checkpoints"
+    ckpts_pth = "/home/sondors/HYPERPARAM_accum_12"
     for checkpoint in os.listdir(ckpts_pth):
         ckpt_pth = os.path.join(ckpts_pth, checkpoint)
         
