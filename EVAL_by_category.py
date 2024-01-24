@@ -120,7 +120,7 @@ if __name__=='__main__':
     pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/models_18_categories.csv"
     pth_offers = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/triplets_test_18_categories.csv"
     tmp_fld = "/home/sondors/Documents/price/ColBERT/tmp"
-    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/triples_X1_13_categories_shuffle"
+    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/triples_X1_13_categories_shuffle_bsize1"
 
     categories = [
         "диктофоны, портативные рекордеры",
@@ -143,7 +143,7 @@ if __name__=='__main__':
     # for checkpoint in os.listdir(ckpts_pth):
     #     ckpt_pth = os.path.join(ckpts_pth, checkpoint)
         
-    ckpt_pth = "/home/sondors/Documents/ColBERT_weights/HYPERPARAM_shuffle_13_categories/none/2024-01/18/15.08.53/checkpoints/colbert-5387-finish"
+    ckpt_pth = "/home/sondors/Documents/price/ColBERT/experiments/HYPERPARAM_shuffle_13_categories_bsize1/none/2024-01/18/23.15.13/checkpoints/colbert-689609-finish"
     all_categories_time = time.time()
     wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json)
     with open(f"{tmp_fld}/logs.txt", "a") as txt:
