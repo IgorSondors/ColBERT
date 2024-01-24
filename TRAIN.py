@@ -34,7 +34,7 @@ if __name__=='__main__':
 
     nway=2                                      # https://github.com/stanford-futuredata/ColBERT/issues/245
     lr=1e-05
-    bsize=128#128*4
+    bsize=100#128*4
     accumsteps=1                                # на сколько элементов из батча аккумулировать лосс
     n_triplets = sum(1 for _ in open(triples))  # количество строк в triples.json
     steps_per_epoch = int(n_triplets/bsize)     # количество батчей в эпохе. ColBERT обучается по всем строкам файла один раз без эпох
