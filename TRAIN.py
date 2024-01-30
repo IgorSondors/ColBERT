@@ -21,6 +21,7 @@ model_name: str = DefaultVal(None) # DefaultVal('bert-base-uncased')
 checkpoint = 'bert-base-multilingual-cased'
 # checkpoint = 'colbert-ir/colbertv2.0'
 if __name__=='__main__':
+
     # triples="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_aug/triples_X1_13_categories_aug_shuffle.json"
     # queries="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_aug/queries_train_13_categories_aug.tsv"
     # collection="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_aug/documents_train_13_categories_aug.tsv"
@@ -41,7 +42,6 @@ if __name__=='__main__':
     use_ib_negatives=True
     save_every = None
     root="/home/sondors/Documents/1234567"      # не работает
-
     nway=2#2                                    # https://github.com/stanford-futuredata/ColBERT/issues/245
     lr=1e-04
     bsize=230#128#40

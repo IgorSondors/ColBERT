@@ -139,13 +139,14 @@ if __name__=='__main__':
         "GPS-навигаторы"
         ]
     
-    # ckpts_pth = "/home/sondors/HYPERPARAM/none/2024-01/09/22.18.23/checkpoints"
-    # for checkpoint in os.listdir(ckpts_pth):
-    #     ckpt_pth = os.path.join(ckpts_pth, checkpoint)
-    ckpt_pth = "/mnt/vdb1/ColBERT/experiments/HYPERPARAM_shuffle_13_categories_bsizeX4/none/2024-01/18/15.28.07/checkpoints/colbert-1346-finish"
-    all_categories_time = time.time()
-    wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json)
-    with open(f"{tmp_fld}/logs.txt", "a") as txt:
-        txt.write(f"all_categories_time = {time.time() - all_categories_time}\n\n")
-        txt.write("-"*100)
-
+    ckpts_pth = "/ome/sondors/bert-base-multilingual-cased_dim_768_bsize_230_lr04_use_ib_negatives/none/2024-01/27/16.55.29/checkpoints"
+    for checkpoint in os.listdir(ckpts_pth):
+        ckpt_pth = os.path.join(ckpts_pth, checkpoint)
+        
+        # ckpt_pth = "/home/sondors/bert-base-multilingual-cased_dim_768_lr04_bsize_75_use_ib_negatives_aug/colbert-68629-finish"
+        all_categories_time = time.time()
+        wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json)
+        with open(f"{tmp_fld}/logs.txt", "a") as txt:
+            txt.write(f"all_categories_time = {time.time() - all_categories_time}\n\n")
+            txt.write("-"*100)гоо====
+  
