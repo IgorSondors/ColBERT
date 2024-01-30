@@ -148,5 +148,5 @@ if __name__=='__main__':
         wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json)
         with open(f"{tmp_fld}/logs.txt", "a") as txt:
             txt.write(f"all_categories_time = {time.time() - all_categories_time}\n\n")
-            txt.write("-"*100)гоо====
+            txt.write("-"*100)
   
