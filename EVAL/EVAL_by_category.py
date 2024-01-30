@@ -117,10 +117,10 @@ def wrt_json(categories, pth_models, pth_offers, ckpt_pth, tmp_fld, pth_dst_json
         txt.write(f"Save pth: {pth_dst_json}_{ckpt_pth.split('/')[-1]}.json\n")
 
 if __name__=='__main__':
-    pth_models = "/mnt/vdb1/Datasets/ColBERT_data/18_categories/test/models_18_categories.csv"
-    pth_offers = "/mnt/vdb1/Datasets/ColBERT_data/18_categories/test/triplets_test_18_categories.csv"
-    tmp_fld = "/mnt/vdb1/ColBERT/tmp"
-    pth_dst_json = "/mnt/vdb1/ColBERT/tmp/triples_X1_13_categories_shuffle_bsizeX4"
+    pth_models = "/home/sondors/Documents/price/BERT_data/data/models_18_categories.csv"
+    pth_offers = "/home/sondors/Documents/price/BERT_data/data/18_categories/triplets_test_18_categories.csv"
+    tmp_fld = "/home/sondors/Documents/price/ColBERT/tmp"
+    pth_dst_json = "/home/sondors/Documents/price/ColBERT/tmp/bert-base-multilingual-cased_dim_768_bsize_230_lr04_use_ib_negatives"
 
     categories = [
         "диктофоны, портативные рекордеры",
@@ -139,7 +139,7 @@ if __name__=='__main__':
         "GPS-навигаторы"
         ]
     
-    ckpts_pth = "/ome/sondors/bert-base-multilingual-cased_dim_768_bsize_230_lr04_use_ib_negatives/none/2024-01/27/16.55.29/checkpoints"
+    ckpts_pth = "/home/sondors/bert-base-multilingual-cased_dim_768_bsize_230_lr04_use_ib_negatives/none/2024-01/27/16.55.29/checkpoints"
     for checkpoint in os.listdir(ckpts_pth):
         ckpt_pth = os.path.join(ckpts_pth, checkpoint)
         
