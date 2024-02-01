@@ -35,8 +35,10 @@ interaction: Тип взаимодействия (например, "colbert").
 ---------------------------------------------------------------------
 TrainingSettings:
 
-Различные параметры, связанные с процессом обучения, такие как выбор функции сходства, размер пакета, шаги аккумуляции градиента, скорость обучения и другие.
+Различные параметры, связанные с процессом обучения, такие как выбор функции сходства, размер пакета, шаги аккумуляции градиента и тд.
 model_name: Название модели (например, "bert-base-uncased").
+
+use_ib_negatives - использование отрицательных примеров (negatives) в процессе обучения ColBERT
 ---------------------------------------------------------------------
 IndexingSettings:
 
@@ -82,6 +84,7 @@ if __name__=='__main__':
     lr=1e-04
     bsize=230#128#40
     accumsteps=1                                # на сколько элементов из батча аккумулировать лосс
+    amp = True                                  # MixedPrecisionManager
     n_triplets = sum(1 for _ in open(triples))  # количество строк в triples.json
     steps_per_epoch = int(n_triplets/bsize)     # количество батчей в эпохе. ColBERT обучается по всем строкам файла один раз без эпох
     warmup=0                                    # через сколько шагов сделать warmup до изначального lr
@@ -95,6 +98,7 @@ if __name__=='__main__':
                                 dim=dim, 
                                 nway=nway, 
                                 accumsteps=accumsteps, 
+                                amp=amp,
                                 use_ib_negatives=use_ib_negatives,
                                 save_every=save_every,
                                 root=root,

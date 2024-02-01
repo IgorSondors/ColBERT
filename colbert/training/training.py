@@ -45,6 +45,7 @@ def train(config: ColBERTConfig, triples, queries=None, collection=None):
             "bsize": config.bsize,
             "nway": config.nway,
             "dim": config.dim,
+            "amp": config.amp,
             "lr": config.lr
         })
 
