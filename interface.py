@@ -7,7 +7,7 @@ import os
 
 def prepare_tsv(df, dst_fld, category_id):
     """
-    Prepare and save two TSV files containing model information.
+    Prepare and save two TSV files containing model information. Below is default format for input of models to ColBERT to index them.
 
     {category_id}_models.tsv:
 
@@ -59,7 +59,7 @@ def save_index(ckpt_fld, doc_maxlen, nbits, kmeans_niters, nranks, dst_fld, expe
         doc_maxlen (int): Maximum length of the document.
         nbits (int): Number of bits for the embedding.
         kmeans_niters (int): Number of iterations of k-means clustering; 4 is a good and fast default
-        nranks (int): Number of GPUs to use
+        nranks (int): Number of GPUs to use, if they are available
         dst_fld (str): Destination folder where the index will be saved.
         experiment (str): Experiment name.
         collection (Collection): Collection of documents to index.
@@ -81,7 +81,7 @@ def top_n_similar(offers, src_fld, nranks, experiment, index_name, model_ids, n)
     Parameters:
         offers (list): List of offers.
         src_fld (str): Source folder where the index is located.
-        nranks (int): Number of GPUs to use
+        nranks (int): Number of GPUs to use, if they are available
         experiment (str): Experiment name.
         index_name (str): Name of the index.
         model_ids (list): List of model IDs.
