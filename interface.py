@@ -50,15 +50,16 @@ def df_split(df):
     df2 = pd.DataFrame({'id': range(len(df)), 'model_id': df["model_id"]})
     return df1, df2
 
-def save_index(ckpt_pth, doc_maxlen, nbits, nranks, dst_fld, experiment, collection, index_name):
+def save_index(ckpt_fld, doc_maxlen, nbits, kmeans_niters, nranks, dst_fld, experiment, collection, index_name):
     """
     Index the collection of documents and save the index for fast search of model that matches to given offer.
 
     Parameters:
-        ckpt_pth (str): Path to the checkpoint file.
+        ckpt_fld (str): Path to the checkpoint folder.
         doc_maxlen (int): Maximum length of the document.
         nbits (int): Number of bits for the embedding.
-        nranks (int): Number of ranks.
+        kmeans_niters (int): Number of iterations of k-means clustering; 4 is a good and fast default
+        nranks (int): Number of GPUs to use
         dst_fld (str): Destination folder where the index will be saved.
         experiment (str): Experiment name.
         collection (Collection): Collection of documents to index.
@@ -68,8 +69,8 @@ def save_index(ckpt_pth, doc_maxlen, nbits, nranks, dst_fld, experiment, collect
         Indexer: Object representing the index.
     """
     with Run().context(RunConfig(nranks=nranks, root=dst_fld, experiment=experiment)):
-        config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits)
-        indexer = Indexer(checkpoint=ckpt_pth, config=config)
+        config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits, kmeans_niters=kmeans_niters)
+        indexer = Indexer(checkpoint=ckpt_fld, config=config)
         indexer.index(name=index_name, collection=collection, overwrite=True)
     return indexer
 
@@ -80,7 +81,7 @@ def top_n_similar(offers, src_fld, nranks, experiment, index_name, model_ids, n)
     Parameters:
         offers (list): List of offers.
         src_fld (str): Source folder where the index is located.
-        nranks (int): Number of ranks.
+        nranks (int): Number of GPUs to use
         experiment (str): Experiment name.
         index_name (str): Name of the index.
         model_ids (list): List of model IDs.
