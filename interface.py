@@ -1,15 +1,13 @@
-import os
-import sys
-sys.path.insert(0, '../')
-import pandas as pd
-
 from colbert.infra import Run, RunConfig, ColBERTConfig
 from colbert.data import Queries, Collection
 from colbert import Indexer, Searcher
 
+import pandas as pd
+import os
+
 def prepare_tsv(df, dst_fld, category_id):
     """
-    Делим модели по full_name и соответствующие им model_id на два tsv файла 
+    Prepare and save two TSV files containing model information.
 
     {category_id}_models.tsv:
 
@@ -22,24 +20,53 @@ def prepare_tsv(df, dst_fld, category_id):
     0   model_id0
     1   model_id1
     2   model_id2
-    
+
+    Parameters:
+        df (DataFrame): DataFrame containing models information.
+        dst_fld (str): Destination folder where TSV files will be saved.
+        category_id (str): Identifier for the category of models.
+
+    Returns:
+        None
     """
 
-    def df_split(df):
-        df1 = pd.DataFrame()
-        df1["id"], df1["full_name"] = [i for i in range(len(df))], df["full_name"]
-        
-        df2 = pd.DataFrame()
-        df2["id"], df2["model_id"] = [i for i in range(len(df))], df["model_id"]
-
-        return df1, df2
-    
     os.makedirs(os.path.join(dst_fld, "tsv"), exist_ok=True)
     models, models_id = df_split(df)
     models.to_csv(os.path.join(dst_fld, "tsv", f"{category_id}_models.tsv"), sep='\t', header=False, index=False)
     models_id.to_csv(os.path.join(dst_fld, "tsv", f"{category_id}_models_id.tsv"), sep='\t', header=False, index=False)
 
+def df_split(df):
+    """
+    Split the DataFrame into two separate DataFrames.
+
+    Parameters:
+        df (DataFrame): Input DataFrame containing models information.
+
+    Returns:
+        DataFrame: DataFrame containing model full names.
+        DataFrame: DataFrame containing model IDs.
+    """
+    df1 = pd.DataFrame({'id': range(len(df)), 'full_name': df["full_name"]})
+    df2 = pd.DataFrame({'id': range(len(df)), 'model_id': df["model_id"]})
+    return df1, df2
+
 def save_index(ckpt_pth, doc_maxlen, nbits, nranks, dst_fld, experiment, collection, index_name):
+    """
+    Index the collection of documents and save the index for fast search of model that matches to given offer.
+
+    Parameters:
+        ckpt_pth (str): Path to the checkpoint file.
+        doc_maxlen (int): Maximum length of the document.
+        nbits (int): Number of bits for the embedding.
+        nranks (int): Number of ranks.
+        dst_fld (str): Destination folder where the index will be saved.
+        experiment (str): Experiment name.
+        collection (Collection): Collection of documents to index.
+        index_name (str): Name of the index.
+
+    Returns:
+        Indexer: Object representing the index.
+    """
     with Run().context(RunConfig(nranks=nranks, root=dst_fld, experiment=experiment)):
         config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits)
         indexer = Indexer(checkpoint=ckpt_pth, config=config)
@@ -47,6 +74,21 @@ def save_index(ckpt_pth, doc_maxlen, nbits, nranks, dst_fld, experiment, collect
     return indexer
 
 def top_n_similar(offers, src_fld, nranks, experiment, index_name, model_ids, n):
+    """
+    Retrieve top N similar models for given offers.
+
+    Parameters:
+        offers (list): List of offers.
+        src_fld (str): Source folder where the index is located.
+        nranks (int): Number of ranks.
+        experiment (str): Experiment name.
+        index_name (str): Name of the index.
+        model_ids (list): List of model IDs.
+        n (int): Number of similar models to retrieve.
+
+    Returns:
+        list: List of dictionaries containing model IDs and their similarities.
+    """
     with Run().context(RunConfig(nranks=nranks, root=src_fld, experiment=experiment)):
         searcher = Searcher(index=index_name, collection=model_ids)
         offers = Queries(data=offers)
@@ -55,6 +97,16 @@ def top_n_similar(offers, src_fld, nranks, experiment, index_name, model_ids, n)
     return top_n
 
 def rankings_to_dict(rankings, searcher):
+    """
+    Convert rankings object to a list of dictionaries.
+
+    Parameters:
+        rankings (Rankings): Rankings object containing search results.
+        searcher (Searcher): Searcher object used for searching.
+
+    Returns:
+        list: List of dictionaries containing model IDs and their similarities.
+    """
     result = []
     for key, value in rankings.todict().items():
         model_ids = [int(searcher.collection[item[0]]) for item in value]
