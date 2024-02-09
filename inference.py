@@ -19,7 +19,7 @@ def offers_to_dict(df, cat_id):
 
 def top_n_to_df(df, indices, top_n, n):
     for idx, insert_dict in zip(indices, top_n):
-        for i in range(n):
+        for i in range(n): # добавить обработку случая, когда ColBERT находит меньше, чем n шт кандидатов
             col_model_id = f'model_id_pred_{i+1}'
             col_similarity = f'similarity_{i+1}'
             df.loc[idx, col_model_id] = insert_dict['model_ids'][i]
