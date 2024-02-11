@@ -1,9 +1,12 @@
 from typing import Tuple, List, Dict, Union, Any
 from colbert.infra import Run, RunConfig, ColBERTConfig
+from colbert.modeling.checkpoint import Checkpoint
+from colbert.modeling.colbert import colbert_score
 from colbert.data import Queries, Collection
 from colbert import Indexer, Searcher
 
 import pandas as pd
+import torch
 import os
 
 def prepare_tsv(df: pd.DataFrame, dst_fld: str, category_id: str) -> None:
@@ -113,3 +116,31 @@ def top_n_similar(offers: Dict[int, str], src_fld: str, nranks: int, experiment:
         rankings = searcher.search_all(offers, k=n)
         top_n = rankings_to_dict(rankings, searcher)
     return top_n
+
+def pair_scores(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, query: List[str], document: List[str]) -> List[float]:
+    """
+    Calculates scores between a set of queries and documents using a ColBERT model.
+
+    Args:
+        ckpt_fld (str): Path to the checkpoint folder.
+        doc_maxlen (int): Maximum length of the document.
+        nbits (int): Number of bits for the embedding.
+        kmeans_niters (int): Number of iterations of k-means clustering; 4 is a good and fast default.
+        query (List[str]): List of queries.
+        document (List[str]): List of documents.
+
+    Returns:
+        List[float]: List of scores corresponding to each query.
+    """
+    config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits, kmeans_niters=kmeans_niters)
+    checkpoint = Checkpoint(ckpt_fld, colbert_config=config)
+
+    scores = []
+    for q in query:
+        Q = checkpoint.queryFromText([q])
+        D = checkpoint.docFromText(document)
+        D_mask=torch.ones(D.size()[:2])
+        score = colbert_score(Q, D, D_mask, config=config)
+        scores.append(score.numpy())
+        
+    return scores
