@@ -117,9 +117,9 @@ def top_n_similar(offers: Dict[int, str], src_fld: str, nranks: int, experiment:
         top_n = rankings_to_dict(rankings, searcher)
     return top_n
 
-def pair_scores(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, query: List[str], document: List[str]) -> List[float]:
+def pair_scores(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, query: List[str], document: List[str], batch_size: int, device: str) -> List[float]:
     """
-    Calculates scores between a set of queries and documents using a ColBERT model.
+    Calculates scores between a set of queries and documents using a ColBERT model, processing documents in batches.
 
     Args:
         ckpt_fld (str): Path to the checkpoint folder.
@@ -128,19 +128,32 @@ def pair_scores(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, 
         kmeans_niters (int): Number of iterations of k-means clustering; 4 is a good and fast default.
         query (List[str]): List of queries.
         document (List[str]): List of documents.
+        batch_size (int): Batch size for processing documents.
+        device (str): cuda / cpu
 
     Returns:
         List[float]: List of scores corresponding to each query.
     """
     config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits, kmeans_niters=kmeans_niters)
     checkpoint = Checkpoint(ckpt_fld, colbert_config=config)
+    checkpoint.to(device)
 
+    cnt = 0
     scores = []
     for q in query:
         Q = checkpoint.queryFromText([q])
-        D = checkpoint.docFromText(document)
-        D_mask=torch.ones(D.size()[:2])
-        score = colbert_score(Q, D, D_mask, config=config)
-        scores.append(score.numpy())
+        num_batches = (len(document) + batch_size - 1) // batch_size
+        batch_scores = []
+        for i in range(num_batches):
+            cnt += 1
+            print(f"batch: {cnt}/{num_batches*len(query)}")
+            start_idx = i * batch_size
+            end_idx = min((i + 1) * batch_size, len(document))
+            batch_document = document[start_idx:end_idx]
+            D = checkpoint.docFromText(batch_document)
+            D_mask = torch.ones(D.size()[:2])
+            score = colbert_score(Q, D, D_mask, config=config)
+            batch_scores.append(score)
+        scores.append(torch.cat(batch_scores).cpu().numpy())
         
     return scores
