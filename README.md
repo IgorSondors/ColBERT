@@ -30,6 +30,15 @@ The file triples.json contains the training triples and has the following format
 The first component is the id of the query, the second one the id of a relevant 
 document and the third one the id of an irrelevant document.
 
+### Venv
+
+We have also included a new environment file specifically for CPU-only environments (conda_env_cpu.yml), but note that if you are testing CPU execution on a machine that includes GPUs you might need to specify os.environ["CUDA_VISIBLE_DEVICES"] = "-1" as part of your command. Note that a GPU is required for training and indexing.
+
+```
+conda env create -f conda_env[_cpu].yml
+conda activate colbert
+```
+
 ### Hyperparameters
 
 There is no description yet, but all hyperparameters could be seen [there](https://github.com/IgorSondors/ColBERT/blob/main/colbert/infra/config/settings.py)
