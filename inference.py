@@ -1,7 +1,10 @@
+import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 from interface import prepare_tsv, save_index, top_n_similar, Collection
 import pandas as pd
 import time
-import os
+
 
 def filter_by_category_id(df, id_category):
     try:
@@ -19,7 +22,7 @@ def offers_to_dict(df, cat_id):
 
 def top_n_to_df(df, indices, top_n, n):
     for idx, insert_dict in zip(indices, top_n):
-        for i in range(n): # добавить обработку случая, когда ColBERT находит меньше, чем n шт кандидатов
+        for i in range(n):
             col_model_id = f'model_id_pred_{i+1}'
             col_similarity = f'similarity_{i+1}'
             df.loc[idx, col_model_id] = insert_dict['model_ids'][i]
@@ -45,7 +48,7 @@ if __name__=='__main__':
     nranks = 1  # nranks определяет количество GPU для использования, если они доступны
     kmeans_niters = 4 # kmeans_niters указывает количество итераций k-means кластеризации; 4 — хороший и быстрый вариант по умолчанию.  
     n = 5 # top_n_similar
-    n_to_df = 5 # top_n_to_df
+    n_to_df = 5 # top_n to df
 
     id_category = {
         3902: 'диктофоны, портативные рекордеры',

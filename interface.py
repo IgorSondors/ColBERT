@@ -76,7 +76,25 @@ def save_index(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, n
         indexer.index(name=index_name, collection=collection, overwrite=True)
     return indexer
 
-def rankings_to_dict(rankings: List[Tuple[str, List[Tuple[int, float]]]], searcher: Searcher) -> List[Dict[str, Any]]:
+def assert_len_n(lst: List[Any], n: int) -> List[Any]:
+    """ 
+    As n (10, 100, >100) increases in top_n, centroid_score_threshold of Searcher decreases, 
+    which is probably why for small n (< 10) ColBERT can find fewer than n candidates for the match.
+    That's why we need to add copies of the last element to the list to reach the desired length 'n'.
+    Args:
+        lst (List[Any]): The list to be modified.
+        n (int): The desired length of the list.
+
+    Returns:
+        List[Any]: The modified list.
+    """
+    if len(lst) < n:
+        last_element = lst[-1]
+        # last_element = 0
+        lst.extend([last_element] * (n - len(lst)))
+    return lst
+
+def rankings_to_dict(rankings: List[Tuple[str, List[Tuple[int, float]]]], searcher: Searcher, n: int) -> List[Dict[str, Any]]:
     """
     Convert rankings object to a list of dictionaries.
 
@@ -91,6 +109,10 @@ def rankings_to_dict(rankings: List[Tuple[str, List[Tuple[int, float]]]], search
     for key, value in rankings.todict().items():
         model_ids = [int(searcher.collection[item[0]]) for item in value]
         similarity = [item[2] for item in value]
+
+        model_ids = assert_len_n(model_ids, n)
+        similarity = assert_len_n(similarity, n)
+
         result.append({'model_ids': model_ids, 'similarity': similarity})
     return result
 
@@ -114,7 +136,7 @@ def top_n_similar(offers: Dict[int, str], src_fld: str, nranks: int, experiment:
         searcher = Searcher(index=index_name, collection=model_ids)
         offers = Queries(data=offers)
         rankings = searcher.search_all(offers, k=n)
-        top_n = rankings_to_dict(rankings, searcher)
+        top_n = rankings_to_dict(rankings, searcher, n)
     return top_n
 
 def pair_scores(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, query: List[str], document: List[str], batch_size: int, device: str) -> List[float]:
@@ -154,6 +176,5 @@ def pair_scores(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, 
             D_mask = torch.ones(D.size()[:2])
             score = colbert_score(Q, D, D_mask, config=config)
             batch_scores.append(score)
-        scores.append(torch.cat(batch_scores).cpu().numpy())
-        
+        scores.append(torch.cat(batch_scores).cpu().numpy())  
     return scores
