@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 def filter_by_category_id(df, id_category):
     try:
@@ -11,32 +12,48 @@ def filter_by_category_id(df, id_category):
     return filtered_df.reset_index(drop=True)
 
 def choose_0_5(df, df_models):
-    for index, row in df.iterrows():
+    start_index = int(input(f"Введите индекс, с которого начать выбор (от 0 до {len(df) - 1}): "))
+    if start_index < 0 or start_index >= len(df):
+        print(f"Некорректный индекс. Диапазон от 0 до {len(df) - 1}.")
+        return df
+    
+    index = start_index
+    while index < len(df):
+        row = df.iloc[index]
         model_gt = list(df_models[df_models.model_id == row['model_id']]['full_name'])[0]
         top_1 = list(df_models[df_models.model_id == row['model_id_pred_1']]['full_name'])[0]
         top_2 = list(df_models[df_models.model_id == row['model_id_pred_2']]['full_name'])[0]
         top_3 = list(df_models[df_models.model_id == row['model_id_pred_3']]['full_name'])[0]
         top_4 = list(df_models[df_models.model_id == row['model_id_pred_4']]['full_name'])[0]
         top_5 = list(df_models[df_models.model_id == row['model_id_pred_5']]['full_name'])[0]
-        print(f"\n{model_gt}:\n{row['name']}")  
-        print(f"1) {top_1}\n2) {top_2}\n3) {top_3}\n4) {top_4}\n5) {top_5}\n")
+        print(f"\ngt: {model_gt}:\n{index+1}/{len(df)}: {row['name']}")  
+        print(f"1) {top_1}\n2) {top_2}\n3) {top_3}\n4) {top_4}\n5) {top_5}\n0) Нет правильного")
 
-        # Запрос ввода от пользователя
-        manual_input = input("Введите число от 0 до 5: ")
+        manual_input = input("Введите число от 0 до 5, '-' для перемещения назад, '+' для перемещения вперед: ")
         
-        # Проверка введенного значения и вставка соответствующего значения в колонку "manual"
+        # Проверка введенного значения и вставка соответствующего значения в колонку "model_id_manual"
         if manual_input.isdigit():
             manual_input = int(manual_input)
             if manual_input == 0:
                 df.at[index, 'model_id_manual'] = 0
+                index += 1
+                # Очистка вывода в терминале
+                os.system('cls' if os.name == 'nt' else 'clear')
             elif manual_input >= 1 and manual_input <= 5:
                 df.at[index, 'model_id_manual'] = row[f'model_id_pred_{manual_input}']
+                index += 1 
+                # Очистка вывода в терминале
+                os.system('cls' if os.name == 'nt' else 'clear')
             else:
-                print("Некорректный ввод. Введите число от 0 до 5.")
+                print(f"{manual_input} --> Некорректный ввод. Введите число от 0 до 5.")
+        elif manual_input == '-': # Перемещение к предыдущей записи
+            if index > 0:
+                index -= 1
+        elif manual_input == '+': # Перемещение к следующей записи
+            index += 1 
         else:
-            print("Некорректный ввод. Введите число от 0 до 5.")
+            print(f"{manual_input} --> Некорректный ввод.")
     return df
-
 
 if __name__=='__main__':
 
