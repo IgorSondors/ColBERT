@@ -29,10 +29,12 @@ def choose_0_5(df, df_models):
         print(f"\ngt: {model_gt}:\n{index+1}/{len(df)}: {row['name']}")  
         print(f"1) {top_1}\n2) {top_2}\n3) {top_3}\n4) {top_4}\n5) {top_5}\n0) Нет правильного")
 
-        manual_input = input("Введите число от 0 до 5, '-' для перемещения назад, '+' для перемещения вперед: ")
+        manual_input = input("Введите число от 0 до 5, '-' для перемещения назад, '+' для перемещения вперед, 'q' для выхода: ")
         
         # Проверка введенного значения и вставка соответствующего значения в колонку "model_id_manual"
-        if manual_input.isdigit():
+        if manual_input == 'q':
+            break  # Выход из цикла
+        elif manual_input.isdigit():
             manual_input = int(manual_input)
             if manual_input == 0:
                 df.at[index, 'model_id_manual'] = 0
