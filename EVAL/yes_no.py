@@ -57,6 +57,47 @@ def choose_0_5(df, df_models):
             print(f"{manual_input} --> Некорректный ввод.")
     return df
 
+def yes_no(df, df_models):
+    start_index = int(input(f"Введите индекс, с которого начать выбор (от 0 до {len(df) - 1}): "))
+    if start_index < 0 or start_index >= len(df):
+        print(f"Некорректный индекс. Диапазон от 0 до {len(df) - 1}.")
+        return df
+    
+    index = start_index
+    while index < len(df):
+        row = df.iloc[index]
+        model_gt = list(df_models[df_models.model_id == row['model_id']]['full_name'])[0]
+        print(f"{index+1}/{len(df)}:\noffer: {row['name']}\nmodel: {model_gt}")  
+        print("1) да\n2) нет\n0) хз")
+
+        manual_input = input("Введите число от 0 до 2, '-' для перемещения назад, '+' для перемещения вперед, 'q' для выхода: ")
+        
+        # Проверка введенного значения и вставка соответствующего значения в колонку "model_id_correct"
+        if manual_input == 'q':
+            break  # Выход из цикла
+        elif manual_input.isdigit():
+            manual_input = int(manual_input)
+            if manual_input == 0:
+                df.at[index, 'model_id_correct'] = 0
+                index += 1
+                # Очистка вывода в терминале
+                os.system('cls' if os.name == 'nt' else 'clear')
+            elif manual_input >= 1 and manual_input <= 2:
+                df.at[index, 'model_id_correct'] = manual_input
+                index += 1 
+                # Очистка вывода в терминале
+                os.system('cls' if os.name == 'nt' else 'clear')
+            else:
+                print(f"{manual_input} --> Некорректный ввод. Введите число от 0 до 2.")
+        elif manual_input == '-': # Перемещение к предыдущей записи
+            if index > 0:
+                index -= 1
+        elif manual_input == '+': # Перемещение к следующей записи
+            index += 1 
+        else:
+            print(f"{manual_input} --> Некорректный ввод.")
+    return df
+
 if __name__=='__main__':
 
     id_category = {
