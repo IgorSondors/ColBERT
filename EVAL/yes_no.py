@@ -20,13 +20,15 @@ def choose_0_5(df, df_models):
     index = start_index
     while index < len(df):
         row = df.iloc[index]
+        cat_id = row['category_id']
         model_gt = list(df_models[df_models.model_id == row['model_id']]['full_name'])[0]
         top_1 = list(df_models[df_models.model_id == row['model_id_pred_1']]['full_name'])[0]
         top_2 = list(df_models[df_models.model_id == row['model_id_pred_2']]['full_name'])[0]
         top_3 = list(df_models[df_models.model_id == row['model_id_pred_3']]['full_name'])[0]
         top_4 = list(df_models[df_models.model_id == row['model_id_pred_4']]['full_name'])[0]
         top_5 = list(df_models[df_models.model_id == row['model_id_pred_5']]['full_name'])[0]
-        print(f"\ngt: {model_gt}:\n{index+1}/{len(df)}: {row['name']}")  
+        # print(f"\ngt: {model_gt}:\n{index+1}/{len(df)}: {row['name']}")  
+        print(f"{index+1}/{len(df)}:\ncategory_id: {cat_id}\nmodel: {model_gt}\noffer: {row['name']}") 
         print(f"1) {top_1}\n2) {top_2}\n3) {top_3}\n4) {top_4}\n5) {top_5}\n0) Нет правильного")
 
         manual_input = input("Введите число от 0 до 5, '-' для перемещения назад, '+' для перемещения вперед, 'q' для выхода: ")
@@ -66,8 +68,9 @@ def yes_no(df, df_models):
     index = start_index
     while index < len(df):
         row = df.iloc[index]
+        cat_id = row['category_id']
         model_gt = list(df_models[df_models.model_id == row['model_id']]['full_name'])[0]
-        print(f"{index+1}/{len(df)}:\noffer: {row['name']}\nmodel: {model_gt}")  
+        print(f"{index+1}/{len(df)}:\ncategory_id: {cat_id}\nmodel: {model_gt}\noffer: {row['name']}")  
         print("1) да\n2) нет\n0) хз")
 
         manual_input = input("Введите число от 0 до 2, '-' для перемещения назад, '+' для перемещения вперед, 'q' для выхода: ")
@@ -118,13 +121,14 @@ if __name__=='__main__':
 
     pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/models_18_categories.csv"
     pth_src = "/home/sondors/Documents/price/ColBERT/proverka/colbert-5387_offers_top_n_exclude_top5.csv"
-    pth_dst = "/home/sondors/Documents/price/ColBERT/proverka/colbert-5387_offers_top_n_exclude_top5_manual.csv"
+    pth_dst = "/home/sondors/Documents/price/ColBERT/proverka/colbert-5387_offers_top_n_exclude_top5_yes_no_1000_errors_2.csv"
 
     df_models = pd.read_csv(pth_models, sep=";")
-    df_offers = pd.read_csv(pth_src, sep=";")
+    df_offers = pd.read_csv(pth_dst, sep=";")
     # df_offers = filter_by_category_id(df_offers, id_category)
 
-    df = choose_0_5(df_offers[:10], df_models)
+    # df = yes_no(df_offers, df_models)
+    df = choose_0_5(df_offers, df_models)
     df.to_csv(pth_dst, sep=';', index=False)
 
     print(df)
