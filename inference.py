@@ -38,8 +38,8 @@ def convert_columns_to_int(df, num_columns):
 if __name__=='__main__':
     # pth_offers = "/home/sondors/Documents/price/BERT_data/data/18_categories/triplets_test_18_categories.csv"
     pth_offers = "/home/sondors/Documents/price/offers_clusterization/data/14_categories_balanced.csv"
-    pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/models_18_categories.csv"
-    dst_fld = "/home/sondors/Documents/price/ColBERT/accuracies"
+    pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/offers_and_models_18_categories.csv"
+    dst_fld = "/home/sondors/Documents/price/ColBERT/accuracies/offers_and_models"
 
     ckpt_pth = "/home/sondors/triples_X1_13_categories_filtered_shuffle_use_ib_negatives_lr04/colbert-4446-finish"
     experiment = "colbert-4446"
