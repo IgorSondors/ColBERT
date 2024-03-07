@@ -207,7 +207,7 @@ def calculate_cosine_similarity(ckpt_fld: str, doc_maxlen: int, nbits: int, kmea
     scores = []
     for q in query:
         Q = checkpoint.queryFromText([q])
-        Q_mean = torch.mean(Q, axis=1)
+        Q_mean = torch.mean(Q, axis=1).cpu().numpy()
         num_batches = (len(document) + batch_size - 1) // batch_size
         batch_scores = []
         for i in range(num_batches):
@@ -217,7 +217,7 @@ def calculate_cosine_similarity(ckpt_fld: str, doc_maxlen: int, nbits: int, kmea
             end_idx = min((i + 1) * batch_size, len(document))
             batch_document = document[start_idx:end_idx]
             D = checkpoint.docFromText(batch_document)
-            D_mean = torch.mean(D, axis=1)
+            D_mean = torch.mean(D, axis=1).cpu().numpy()
 
             sim = cosine_similarity(Q_mean, D_mean)
             batch_scores.append(sim)
