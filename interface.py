@@ -1,11 +1,14 @@
 from typing import Tuple, List, Dict, Union, Any
+
 from colbert.infra import Run, RunConfig, ColBERTConfig
 from colbert.modeling.checkpoint import Checkpoint
 from colbert.modeling.colbert import colbert_score
 from colbert.data import Queries, Collection
 from colbert import Indexer, Searcher
 
+from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
+import numpy as np
 import torch
 import os
 
@@ -178,3 +181,45 @@ def pair_scores(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, 
             batch_scores.append(score)
         scores.append(torch.cat(batch_scores).cpu().numpy())  
     return scores
+
+def calculate_cosine_similarity(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, query: List[str], document: List[str], batch_size: int, device: str) -> List[np.ndarray]:
+    """
+    Calculates cosine similarity scores between a set of queries and documents using a ColBERT model, with support for batching.
+
+    Args:
+        ckpt_fld (str): Path to the checkpoint folder.
+        doc_maxlen (int): Maximum length of the document.
+        nbits (int): Number of bits for the embedding.
+        kmeans_niters (int): Number of iterations of k-means clustering; 4 is a good and fast default.
+        query (List[str]): List of queries.
+        document (List[str]): List of documents.
+        batch_size (int): Batch size for processing documents.
+        device (str): Device to use for processing (e.g., 'cpu' or 'cuda').
+
+    Returns:
+        List[np.ndarray]: List of arrays of cosine similarity scores. Each array corresponds to a query, and each row corresponds to a document.
+    """
+    config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits, kmeans_niters=kmeans_niters)
+    checkpoint = Checkpoint(ckpt_fld, colbert_config=config)
+    checkpoint.to(device)
+
+    cnt = 0
+    scores = []
+    for q in query:
+        Q = checkpoint.queryFromText([q])
+        Q_mean = torch.mean(Q, axis=1)
+        num_batches = (len(document) + batch_size - 1) // batch_size
+        batch_scores = []
+        for i in range(num_batches):
+            cnt += 1
+            print(f"batch: {cnt}/{num_batches*len(query)}")
+            start_idx = i * batch_size
+            end_idx = min((i + 1) * batch_size, len(document))
+            batch_document = document[start_idx:end_idx]
+            D = checkpoint.docFromText(batch_document)
+            D_mean = torch.mean(D, axis=1)
+
+            sim = cosine_similarity(Q_mean, D_mean)
+            batch_scores.append(sim)
+        scores.append(batch_scores)  
+    return [np.concatenate(sublist, axis=1)[0] for sublist in scores]
