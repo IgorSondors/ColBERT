@@ -28,3 +28,4 @@ dependencies:
     - ujson
     - flask
     - python-dotenv
+    - scikit-learn
