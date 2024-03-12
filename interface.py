@@ -223,3 +223,6 @@ def calculate_cosine_similarity(ckpt_fld: str, doc_maxlen: int, nbits: int, kmea
             batch_scores.append(sim)
         scores.append(batch_scores)  
     return [np.concatenate(sublist, axis=1)[0] for sublist in scores]
+
+def get_raw_emb(sentences: List[str], checkpoint: Checkpoint, batch_size: int) -> np.ndarray:
+    return checkpoint.queryFromText(sentences, bsize = batch_size)
