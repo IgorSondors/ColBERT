@@ -224,5 +224,33 @@ def calculate_cosine_similarity(ckpt_fld: str, doc_maxlen: int, nbits: int, kmea
         scores.append(batch_scores)  
     return [np.concatenate(sublist, axis=1)[0] for sublist in scores]
 
-def get_raw_emb(sentences: List[str], checkpoint: Checkpoint, batch_size: int) -> np.ndarray:
-    return checkpoint.queryFromText(sentences, bsize = batch_size)
+def get_raw_emb_(sentences: List[str], checkpoint: Checkpoint, batch_size: int) -> np.ndarray:
+    return checkpoint.queryFromText(sentences, bsize = batch_size).cpu().numpy()
+
+def get_raw_emb(sentences: List[str], checkpoint: Checkpoint, batch_size: int) -> List[np.ndarray]:
+    # Инициализируем список для хранения результатов
+    embeddings_list = []
+    
+    # Вычисляем количество итераций, основываясь на размере батча
+    # num_batches = len(sentences) // batch_size
+    # if len(sentences) % batch_size != 0:
+    #     num_batches += 1
+    
+    num_batches = (len(sentences) + batch_size - 1) // batch_size
+
+    # Проходимся по батчам из предложений
+    for i in range(num_batches):
+        start_idx = i * batch_size
+        end_idx = min((i + 1) * batch_size, len(sentences))
+        batch_sentences = sentences[start_idx:end_idx]
+
+        # Получаем подмножество предложений для текущего батча
+        # batch_sentences = sentences[i * batch_size: (i + 1) * batch_size]
+        
+        # Получаем тензоры из модели для текущего батча
+        batch_embeddings = checkpoint.queryFromText(batch_sentences, bsize=batch_size).cpu().numpy()
+        
+        # Добавляем результаты текущего батча в список
+        embeddings_list.extend(batch_embeddings)
+    
+    return embeddings_list
