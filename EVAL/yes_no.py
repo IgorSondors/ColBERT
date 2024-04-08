@@ -1,7 +1,36 @@
 import pandas as pd
 import os
 
-def filter_by_category_id(df, id_category):
+def filter_by_category_id(df):
+
+    # id_category = {
+    #         3902: 'диктофоны, портативные рекордеры',
+    #         510402: 'электронные книги',
+    #         4302: 'автомобильные телевизоры, мониторы',
+    #         2815: 'смарт-часы и браслеты',
+    #         3901: 'портативные медиаплееры',
+    #         3904: 'портативная акустика',
+    #         2801: 'мобильные телефоны',
+    #         3908: 'VR-гарнитуры (VR-очки, шлемы, очки виртуальной реальности, FPV очки для квадрокоптеров)',
+    #         510401: 'планшетные компьютеры и мини-планшеты',
+    #         2102: 'наушники, гарнитуры, наушники c микрофоном',
+    #         3903: 'радиоприемники, радиобудильники, радиочасы',
+    #         3907: 'магнитолы',
+    #         280801: 'GPS-навигаторы'
+    #         }
+
+    id_category = {
+            # 921201: 'корм для кошек',
+            # 963401: 'колбасы',
+            # 710502: 'стиральные машины',
+            # 977135: 'ботинки, полуботинки',
+            # 911906: 'парфюмерия',
+            # 976132: 'туфли и лоферы',
+            740101: 'кухонные мойки',
+            # 7106: 'микроволновые печи',
+            # 921401: 'корм для собак',
+            # 963302: 'пицца'
+            }
     try:
         df = df.drop(columns=['true_match', 'false_match'])
     except:
@@ -21,7 +50,12 @@ def choose_0_5(df, df_models):
     while index < len(df):
         row = df.iloc[index]
         cat_id = row['category_id']
-        model_gt = list(df_models[df_models.model_id == row['model_id']]['full_name'])[0]
+        model_gt_list = list(df_models[df_models.model_id == row['model_id']]['full_name'])
+        if len(model_gt_list) >= 1:
+            model_gt = model_gt_list[0]
+        else:
+            model_gt = 0
+
         top_1 = list(df_models[df_models.model_id == row['model_id_pred_1']]['full_name'])[0]
         top_2 = list(df_models[df_models.model_id == row['model_id_pred_2']]['full_name'])[0]
         top_3 = list(df_models[df_models.model_id == row['model_id_pred_3']]['full_name'])[0]
@@ -69,7 +103,12 @@ def yes_no(df, df_models):
     while index < len(df):
         row = df.iloc[index]
         cat_id = row['category_id']
-        model_gt = list(df_models[df_models.model_id == row['model_id']]['full_name'])[0]
+        model_gt_list = list(df_models[df_models.model_id == row['model_id']]['full_name'])
+        if len(model_gt_list) >= 1:
+            model_gt = model_gt_list[0]
+        else:
+            model_gt = 0
+            
         print(f"{index+1}/{len(df)}:\ncategory_id: {cat_id}\nmodel: {model_gt}\noffer: {row['name']}")  
         print("1) да\n2) нет\n0) хз")
 
@@ -102,30 +141,13 @@ def yes_no(df, df_models):
     return df
 
 if __name__=='__main__':
-
-    id_category = {
-            3902: 'диктофоны, портативные рекордеры',
-            510402: 'электронные книги',
-            4302: 'автомобильные телевизоры, мониторы',
-            2815: 'смарт-часы и браслеты',
-            3901: 'портативные медиаплееры',
-            3904: 'портативная акустика',
-            2801: 'мобильные телефоны',
-            3908: 'VR-гарнитуры (VR-очки, шлемы, очки виртуальной реальности, FPV очки для квадрокоптеров)',
-            510401: 'планшетные компьютеры и мини-планшеты',
-            2102: 'наушники, гарнитуры, наушники c микрофоном',
-            3903: 'радиоприемники, радиобудильники, радиочасы',
-            3907: 'магнитолы',
-            280801: 'GPS-навигаторы'
-            }
-
-    pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/models_18_categories.csv"
-    pth_src = "/home/sondors/Documents/price/ColBERT/proverka/colbert-5387_offers_top_n_exclude_top5.csv"
-    pth_dst = "/home/sondors/Documents/price/ColBERT/proverka/colbert-5387_offers_top_n_exclude_top5_yes_no_1000_errors_2.csv"
+    
+    pth_models = "/home/sondors/Documents/price/BERT_data/data/27-03-2024_Timofey/740101_models.csv"
+    pth_src = "/home/sondors/Documents/price/ColBERT_data/10_categories/740101/test/740101_lr04_bsize230_offers_top_n_model_id_0_yes_no.csv"
+    pth_dst = "/home/sondors/Documents/price/ColBERT_data/10_categories/740101/test/740101_lr04_bsize230_offers_top_n_model_id_0_yes_no.csv"
 
     df_models = pd.read_csv(pth_models, sep=";")
     df_offers = pd.read_csv(pth_dst, sep=";")
-    # df_offers = filter_by_category_id(df_offers, id_category)
 
     # df = yes_no(df_offers, df_models)
     df = choose_0_5(df_offers, df_models)
