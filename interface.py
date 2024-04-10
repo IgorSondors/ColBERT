@@ -224,33 +224,62 @@ def calculate_cosine_similarity(ckpt_fld: str, doc_maxlen: int, nbits: int, kmea
         scores.append(batch_scores)  
     return [np.concatenate(sublist, axis=1)[0] for sublist in scores]
 
-def get_raw_emb_(sentences: List[str], checkpoint: Checkpoint, batch_size: int) -> np.ndarray:
-    return checkpoint.queryFromText(sentences, bsize = batch_size).cpu().numpy()
+def get_query_emb(sentences: List[str], checkpoint: Checkpoint, batch_size: int) -> np.ndarray:
+    """
+    Generate embeddings for a list of sentences using the provided checkpoint.
 
-def get_raw_emb(sentences: List[str], checkpoint: Checkpoint, batch_size: int) -> List[np.ndarray]:
-    # Инициализируем список для хранения результатов
+    Args:
+        sentences (List[str]): A list of sentences for which embeddings need to be generated.
+        checkpoint (Checkpoint): The checkpoint object used for generating embeddings.
+        batch_size (int): The batch size to use during inference.
+
+    Returns:
+        np.ndarray: An array of embeddings for the input sentences.
+    """
+    return checkpoint.queryFromText(sentences, bsize=batch_size).to("cpu").numpy()
+
+def get_query_emb_batch(sentences: List[str], checkpoint: Checkpoint, batch_size: int, batch_size2: int) -> np.ndarray:
+    """
+    Generate embeddings for a list of sentences in batches using the provided checkpoint.
+
+    Args:
+        sentences (List[str]): A list of sentences for which embeddings need to be generated.
+        checkpoint (Checkpoint): The checkpoint object used for generating embeddings.
+        batch_size (int): The batch size to use during inference.
+        batch_size2 (int): The size of the sub-batches to split the input sentences into.
+
+    Returns:
+        np.ndarray: An array of embeddings for the input sentences. 
+        Shape of the array is (len(sentences), 32, 768) for bert-base-multilingual-cased or (len(sentences), 32, 128) for colbertv2.0
+    """
     embeddings_list = []
     
-    # Вычисляем количество итераций, основываясь на размере батча
-    # num_batches = len(sentences) // batch_size
-    # if len(sentences) % batch_size != 0:
-    #     num_batches += 1
-    
-    num_batches = (len(sentences) + batch_size - 1) // batch_size
+    for i in range(0, len(sentences), batch_size2):
+        print(f"batch: {min(i+batch_size2, len(sentences))}/{len(sentences)}")
 
-    # Проходимся по батчам из предложений
-    for i in range(num_batches):
-        start_idx = i * batch_size
-        end_idx = min((i + 1) * batch_size, len(sentences))
-        batch_sentences = sentences[start_idx:end_idx]
+        batch_sentences = sentences[i:i+batch_size2]
+        embeddings = get_query_emb(batch_sentences, checkpoint, batch_size)
+        embeddings_list.append(embeddings)
 
-        # Получаем подмножество предложений для текущего батча
-        # batch_sentences = sentences[i * batch_size: (i + 1) * batch_size]
-        
-        # Получаем тензоры из модели для текущего батча
-        batch_embeddings = checkpoint.queryFromText(batch_sentences, bsize=batch_size).cpu().numpy()
-        
-        # Добавляем результаты текущего батча в список
-        embeddings_list.extend(batch_embeddings)
+        torch.cuda.empty_cache()
     
-    return embeddings_list
+    combined_embeddings = np.concatenate(embeddings_list, axis=0)
+    return combined_embeddings
+
+def load_model(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, device: str) -> Checkpoint:
+    """
+    Load a ColBERT model from a checkpoint folder and configure it based on provided parameters.
+
+    Args:
+        ckpt_fld (str): Path to the checkpoint folder.
+        doc_maxlen (int): Maximum length of the document.
+        nbits (int): Number of bits for the embedding.
+        kmeans_niters (int): Number of iterations of k-means clustering; 4 is a good and fast default.
+        device (str): Device to use, either "cuda" or "cpu".
+
+    Returns:
+        ColBERT: Loaded ColBERT model configured with the specified parameters.
+    """
+    config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits, kmeans_niters=kmeans_niters)
+    checkpoint = Checkpoint(ckpt_fld, colbert_config=config)
+    return checkpoint.to(device)
