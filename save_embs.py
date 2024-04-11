@@ -1,5 +1,5 @@
 import os
-from interface import get_raw_emb
+from interface import get_query_emb_batch
 from colbert.infra import ColBERTConfig
 from colbert.modeling.checkpoint import Checkpoint
 
@@ -44,8 +44,7 @@ if __name__ == '__main__':
         # part_offers = offers[part * part_size : (part + 1) * part_size]
         
         # Получаем эмбеддинги для текущей части
-        part_embs = get_raw_emb(part_offers, checkpoint, 300)
-        
+        part_embs = get_query_emb_batch(part_offers, checkpoint, batch_size=100, batch_size2=5000)
         # Сохраняем эмбеддинги текущей части
         for emb in part_embs:
             np.save(f'{dst_fld}/{file_index}.npy', emb)
