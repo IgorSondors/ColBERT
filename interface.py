@@ -182,47 +182,89 @@ def pair_scores(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, 
         scores.append(torch.cat(batch_scores).cpu().numpy())  
     return scores
 
-def calculate_cosine_similarity(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, query: List[str], document: List[str], batch_size: int, device: str) -> List[np.ndarray]:
+def load_model(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, device: str) -> Checkpoint:
     """
-    Calculates cosine similarity scores between a set of queries and documents using a ColBERT model, with support for batching.
+    Load a ColBERT model from a checkpoint folder and configure it based on provided parameters.
 
     Args:
         ckpt_fld (str): Path to the checkpoint folder.
         doc_maxlen (int): Maximum length of the document.
         nbits (int): Number of bits for the embedding.
         kmeans_niters (int): Number of iterations of k-means clustering; 4 is a good and fast default.
-        query (List[str]): List of queries.
-        document (List[str]): List of documents.
-        batch_size (int): Batch size for processing documents.
-        device (str): Device to use for processing (e.g., 'cpu' or 'cuda').
+        device (str): Device to use, either "cuda" or "cpu".
 
     Returns:
-        List[np.ndarray]: List of arrays of cosine similarity scores. Each array corresponds to a query, and each row corresponds to a document.
+        ColBERT: Loaded ColBERT model configured with the specified parameters.
     """
     config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits, kmeans_niters=kmeans_niters)
     checkpoint = Checkpoint(ckpt_fld, colbert_config=config)
-    checkpoint.to(device)
+    return checkpoint.to(device)
 
-    cnt = 0
-    scores = []
-    for q in query:
-        Q = checkpoint.queryFromText([q])
-        Q_mean = torch.mean(Q, axis=1).cpu().numpy()
-        num_batches = (len(document) + batch_size - 1) // batch_size
-        batch_scores = []
-        for i in range(num_batches):
-            cnt += 1
-            print(f"batch: {cnt}/{num_batches*len(query)}")
-            start_idx = i * batch_size
-            end_idx = min((i + 1) * batch_size, len(document))
-            batch_document = document[start_idx:end_idx]
-            D = checkpoint.docFromText(batch_document)
-            D_mean = torch.mean(D, axis=1).cpu().numpy()
+def cosine_similarity_batch(offer_embs: List[np.ndarray], model_embs: List[np.ndarray], batch_size: int) -> np.ndarray:
+    """
+    Get mean tensor of all chunks of each offer/model and calculate cosine similarity scores between batches of offer embeddings and model embeddings.
+    This function calculates similarity batch by batch to prevent memory overflow.
 
-            sim = cosine_similarity(Q_mean, D_mean)
-            batch_scores.append(sim)
-        scores.append(batch_scores)  
-    return [np.concatenate(sublist, axis=1)[0] for sublist in scores]
+    Args:
+        offer_embs (List[np.ndarray]): List of offer embeddings with shape (N, 32, D), where N is the number of offers, D is dimensions of ColBERT.
+        model_embs (List[np.ndarray]): List of model embeddings with shape (M, 32, D), where M is the number of models.
+        batch_size (int): Batch size for chunking the offer embeddings.
 
-def get_raw_emb(sentences: List[str], checkpoint: Checkpoint, batch_size: int) -> np.ndarray:
-    return checkpoint.queryFromText(sentences, bsize = batch_size)
+    Returns:
+        np.ndarray: A 2D array containing cosine similarity scores between each offer embedding batch and model embeddings.
+                    The shape of the output array will be (N, M), representing the similarity scores between each offer and model pair.
+
+    Example:
+        >>> offer_embs = [np.random.rand(N, 32, 128), np.random.rand(N, 32, 128)]  # List of offer embeddings
+        >>> model_embs = [np.random.rand(M, 32, 128), np.random.rand(M, 32, 128)]   # List of model embeddings
+        >>> batch_size = 16                                                           # Batch size for chunking the offer embeddings
+        >>> similarity_scores = cosine_similarity_batch(offer_embs, model_embs, batch_size)
+        >>> print(similarity_scores.shape)  # Output shape will be (N, M), representing the similarity scores between each offer and model pair
+    """
+    offers_embs_mean = np.mean(offer_embs, axis=1)
+    models_embs_mean = np.mean(model_embs, axis=1)
+    offer_embs_split = [offers_embs_mean[x:x+batch_size] for x in range(0, len(offers_embs_mean), batch_size)]
+    cosine_sims_chunks = [cosine_similarity(batch_embs, models_embs_mean) for batch_embs in offer_embs_split]
+    return np.vstack(cosine_sims_chunks)
+
+def get_query_emb(sentences: List[str], checkpoint: Checkpoint, batch_size: int) -> np.ndarray:
+    """
+    Generate embeddings for a list of sentences using the provided checkpoint.
+
+    Args:
+        sentences (List[str]): A list of sentences for which embeddings need to be generated.
+        checkpoint (Checkpoint): The checkpoint object used for generating embeddings.
+        batch_size (int): The batch size to use during inference.
+
+    Returns:
+        np.ndarray: An array of embeddings for the input sentences.
+    """
+    return checkpoint.queryFromText(sentences, bsize=batch_size).to("cpu").numpy()
+
+def get_query_emb_batch(sentences: List[str], checkpoint: Checkpoint, batch_size: int, batch_size2: int) -> np.ndarray:
+    """
+    Generate embeddings for a list of sentences in batches using the provided checkpoint.
+
+    Args:
+        sentences (List[str]): A list of sentences for which embeddings need to be generated.
+        checkpoint (Checkpoint): The checkpoint object used for generating embeddings.
+        batch_size (int): The batch size to use during inference.
+        batch_size2 (int): The size of the sub-batches to split the input sentences into.
+
+    Returns:
+        np.ndarray: An array of embeddings for the input sentences. 
+        Shape of the array is (len(sentences), 32, 768) for bert-base-multilingual-cased or (len(sentences), 32, 128) for colbertv2.0
+    """
+    embeddings_list = []
+    
+    for i in range(0, len(sentences), batch_size2):
+        print(f"batch: {min(i+batch_size2, len(sentences))}/{len(sentences)}")
+
+        batch_sentences = sentences[i:i+batch_size2]
+        embeddings = get_query_emb(batch_sentences, checkpoint, batch_size)
+        embeddings_list.append(embeddings)
+
+        torch.cuda.empty_cache()
+    
+    combined_embeddings = np.concatenate(embeddings_list, axis=0)
+    return combined_embeddings
