@@ -77,9 +77,9 @@ if __name__=='__main__':
     # queries="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_filtered/queries_train_13_categories_filtered.tsv"
     # collection="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_filtered/documents_train_13_categories_filtered.tsv"
 
-    triples="/mnt/vdb1/Datasets/ColBERT_data/10_categories/740101/train/triples_X1_740101_shuffle.json"
-    queries="/mnt/vdb1/Datasets/ColBERT_data/10_categories/740101/train/queries_train_740101.tsv"
-    collection="/mnt/vdb1/Datasets/ColBERT_data/10_categories/740101/train/documents_train_740101.tsv"
+    triples="/mnt/vdb1/Datasets/ColBERT_data/2801/train/triples_X1_2801_Apple_shuffle.json"
+    queries="/mnt/vdb1/Datasets/ColBERT_data/2801/train/queries_train_2801_Apple.tsv"
+    collection="/mnt/vdb1/Datasets/ColBERT_data/2801/train/documents_train_2801_Apple.tsv"
 
     # DocSettings:
     doc_maxlen=180
@@ -98,7 +98,7 @@ if __name__=='__main__':
     steps_per_epoch = int(n_triplets/bsize)     # количество батчей в эпохе. ColBERT обучается по всем строкам файла один раз без эпох
     warmup=0                                    # через сколько шагов сделать warmup до изначального lr
 
-    experiment = "740101_lr04"
+    experiment = "2801_lr04_bsize_230"
     with Run().context(RunConfig(nranks=1, experiment=experiment)): # nranks - число видеокарт
         config = ColBERTConfig(bsize=bsize, 
                                 lr=lr, 
