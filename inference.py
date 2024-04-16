@@ -37,14 +37,14 @@ def convert_columns_to_int(df, num_columns):
 
 if __name__=='__main__':
     # pth_offers = "/home/sondors/Documents/price/BERT_data/data/18_categories/triplets_test_18_categories.csv"
-    pth_offers = "/home/sondors/Documents/price/BERT_data/data/27-03-2024_Timofey/740101_offers_active_model_id_0_unique.csv"
+    pth_offers = "/home/sondors/Documents/price/BERT_data/data/10-04-2024_Timofey/2801_Apple_test.csv"
     # pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/offers_and_models_18_categories.csv"
-    pth_models = "/home/sondors/Documents/price/BERT_data/data/27-03-2024_Timofey/740101_models.csv"
+    pth_models = "/home/sondors/Documents/price/BERT_data/data/10-04-2024_Timofey/2801_models_Apple.csv"
     # dst_fld = "/home/sondors/Documents/price/ColBERT/accuracies/offers_and_models"
-    dst_fld = "/home/sondors/Documents/price/ColBERT_data/10_categories/740101/test"
+    dst_fld = "/home/sondors/Documents/price/BERT_data/data/10-04-2024_Timofey"
 
-    ckpt_pth = "/home/sondors/Documents/ColBERT_weights/740101_lr04_bsize230/colbert-489-finish"
-    experiment = "740101_lr04_bsize230"
+    ckpt_pth = ""
+    experiment = ""
 
     doc_maxlen = 300
     nbits = 2   # bits определяет количество битов у каждого измерения в семантическом пространстве во время индексации
@@ -53,34 +53,34 @@ if __name__=='__main__':
     n = 5 # top_n_similar
     n_to_df = 5 # top_n to df
 
-    # id_category = {
-    #     3902: 'диктофоны, портативные рекордеры',
-    #     510402: 'электронные книги',
-    #     4302: 'автомобильные телевизоры, мониторы',
-    #     2815: 'смарт-часы и браслеты',
-    #     3901: 'портативные медиаплееры',
-    #     3904: 'портативная акустика',
-    #     2801: 'мобильные телефоны',
-    #     3908: 'VR-гарнитуры (VR-очки, шлемы, очки виртуальной реальности, FPV очки для квадрокоптеров)',
-    #     510401: 'планшетные компьютеры и мини-планшеты',
-    #     2102: 'наушники, гарнитуры, наушники c микрофоном',
-    #     3903: 'радиоприемники, радиобудильники, радиочасы',
-    #     3907: 'магнитолы',
-    #     280801: 'GPS-навигаторы'
-    #     }
-
     id_category = {
+        # 3902: 'диктофоны, портативные рекордеры',
+        # 510402: 'электронные книги',
+        # 4302: 'автомобильные телевизоры, мониторы',
+        # 2815: 'смарт-часы и браслеты',
+        # 3901: 'портативные медиаплееры',
+        # 3904: 'портативная акустика',
+        2801: 'мобильные телефоны',
+        # 3908: 'VR-гарнитуры (VR-очки, шлемы, очки виртуальной реальности, FPV очки для квадрокоптеров)',
+        # 510401: 'планшетные компьютеры и мини-планшеты',
+        # 2102: 'наушники, гарнитуры, наушники c микрофоном',
+        # 3903: 'радиоприемники, радиобудильники, радиочасы',
+        # 3907: 'магнитолы',
+        # 280801: 'GPS-навигаторы'
+        }
+
+    # id_category = {
         # 921201: 'корм для кошек',
         # 963401: 'колбасы',
         # 710502: 'стиральные машины',
         # 977135: 'ботинки, полуботинки',
         # 911906: 'парфюмерия',
         # 976132: 'туфли и лоферы',
-        740101: 'кухонные мойки',
+        # 740101: 'кухонные мойки',
         # 7106: 'микроволновые печи',
         # 921401: 'корм для собак',
         # 963302: 'пицца'
-        }
+        # }
     
     start_time = time.time()
 
@@ -104,7 +104,7 @@ if __name__=='__main__':
         df_offers = top_n_to_df(df_offers, indices, top_n, n_to_df)
 
     df_offers = convert_columns_to_int(df_offers, n_to_df)
-    df_offers.to_csv(os.path.join(dst_fld, f"{experiment}_offers_top_n_model_id_0.csv"), sep=';',index=False)
+    df_offers.to_csv(os.path.join(dst_fld, f"{experiment}_offers_top_n_Apple_test.csv"), sep=';',index=False)
 
     time_spent = time.time() - start_time
     print(f"time_spent = {time_spent}")
