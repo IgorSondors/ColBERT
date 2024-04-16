@@ -143,8 +143,8 @@ def yes_no(df, df_models):
 if __name__=='__main__':
     
     pth_models = "/home/sondors/Documents/price/BERT_data/data/27-03-2024_Timofey/740101_models.csv"
-    pth_src = "/home/sondors/Documents/price/ColBERT_data/10_categories/740101/test/740101_lr04_bsize230_offers_top_n_model_id_0_yes_no.csv"
-    pth_dst = "/home/sondors/Documents/price/ColBERT_data/10_categories/740101/test/740101_lr04_bsize230_offers_top_n_model_id_0_yes_no.csv"
+    pth_src = "/home/sondors/Documents/price/ColBERT/EVAL/740101_lr04_bsize230_offers_top_n_model_id_0_cos_>=08.csv"
+    pth_dst = "/home/sondors/Documents/price/ColBERT/EVAL/740101_lr04_bsize230_offers_top_n_model_id_0_cos_>=08.csv"
 
     df_models = pd.read_csv(pth_models, sep=";")
     df_offers = pd.read_csv(pth_dst, sep=";")
