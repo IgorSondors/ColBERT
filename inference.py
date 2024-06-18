@@ -36,15 +36,14 @@ def convert_columns_to_int(df, num_columns):
     return df
 
 if __name__=='__main__':
-    # pth_offers = "/home/sondors/Documents/price/BERT_data/data/18_categories/triplets_test_18_categories.csv"
-    pth_offers = "/home/sondors/Documents/price/BERT_data/data/10-04-2024_Timofey/2801_Apple_test.csv"
-    # pth_models = "/home/sondors/Documents/price/ColBERT_data/18_categories/test/offers_and_models_18_categories.csv"
-    pth_models = "/home/sondors/Documents/price/BERT_data/data/10-04-2024_Timofey/2801_models_Apple.csv"
+    pth_offers = "/home/sondors/Documents/price/BERT_data/data/14-06-2024_2801_Samsung_split/offers_nm_60_days/2801_offers_model_id0_60days_samsung.csv"
+    pth_models = "/home/sondors/Documents/price/BERT_data/data/14-06-2024_2801_Samsung_split/models_Samsung/models_Samsung.csv"
+    # pth_models = "/home/sondors/Documents/price/BERT_data/data/17-04-2024_Timofey/2801_offers_models_Apple.csv"
     # dst_fld = "/home/sondors/Documents/price/ColBERT/accuracies/offers_and_models"
-    dst_fld = "/home/sondors/Documents/price/BERT_data/data/10-04-2024_Timofey"
+    dst_fld = "/home/sondors/Documents/price/BERT_data/data/14-06-2024_2801_Samsung_split/offers_nm_60_days"
 
-    ckpt_pth = ""
-    experiment = ""
+    ckpt_pth = "/home/sondors/2801_lr04_bsize_210_samsung/none/2024-06/17/07.43.04/checkpoints/colbert-51-finish"
+    experiment = "colbert-51-finish"
 
     doc_maxlen = 300
     nbits = 2   # bits определяет количество битов у каждого измерения в семантическом пространстве во время индексации
@@ -104,7 +103,7 @@ if __name__=='__main__':
         df_offers = top_n_to_df(df_offers, indices, top_n, n_to_df)
 
     df_offers = convert_columns_to_int(df_offers, n_to_df)
-    df_offers.to_csv(os.path.join(dst_fld, f"{experiment}_offers_top_n_Apple_test.csv"), sep=';',index=False)
+    df_offers.to_csv(os.path.join(dst_fld, f"{experiment}_offers_top_n_Samsung_model_id0.csv"), sep=';',index=False)
 
     time_spent = time.time() - start_time
     print(f"time_spent = {time_spent}")
