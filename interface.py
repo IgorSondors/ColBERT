@@ -265,9 +265,7 @@ def get_query_emb_batch(sentences: List[str], checkpoint: Checkpoint, batch_size
         embeddings_list.append(embeddings)
 
         torch.cuda.empty_cache()
-    
-    combined_embeddings = np.concatenate(embeddings_list, axis=0)
-    return combined_embeddings
+    return np.concatenate(embeddings_list, axis=0)
 
 def top_n_similar(offer_embs: List[np.ndarray], model_embs: List[np.ndarray], model_ids: List[int], batch_size: int = 1000, n: int = 5) -> List[Dict[str, Union[List[int], np.ndarray]]]:
     """
