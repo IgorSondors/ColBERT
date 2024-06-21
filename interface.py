@@ -119,9 +119,9 @@ def rankings_to_dict(rankings: List[Tuple[str, List[Tuple[int, float]]]], search
         result.append({'model_ids': model_ids, 'similarity': similarity})
     return result
 
-def top_n_similar(offers: Dict[int, str], src_fld: str, nranks: int, experiment: str, index_name: str, model_ids: List[str], n: int) -> List[Dict[str, Union[List[int], List[float]]]]:
+def top_n_similar_by_index(offers: Dict[int, str], src_fld: str, nranks: int, experiment: str, index_name: str, model_ids: List[str], n: int) -> List[Dict[str, Union[List[int], List[float]]]]:
     """
-    Retrieve top N similar models for given offers.
+    Retrieve top N similar models for given offers. Embeddings of all models are already pre-calculated in the FAISS index.
 
     Args:
         offers (Dict[int, str]): Dictionary where keys are integer IDs and values are offer strings.
@@ -268,3 +268,38 @@ def get_query_emb_batch(sentences: List[str], checkpoint: Checkpoint, batch_size
     
     combined_embeddings = np.concatenate(embeddings_list, axis=0)
     return combined_embeddings
+
+def top_n_similar(offer_embs: List[np.ndarray], model_embs: List[np.ndarray], model_ids: List[int], batch_size: int = 1000, n: int = 5) -> List[Dict[str, Union[List[int], np.ndarray]]]:
+    """
+    Find the top N similar embeddings for each offer embedding.
+
+    Args:
+        offer_embs (List[np.ndarray]): List of offer embeddings.
+        model_embs (List[np.ndarray]): List of model embeddings.
+        model_ids (List[int]): List of model IDs corresponding to model embeddings.
+        batch_size (int, optional): Batch size for chunking the offer embeddings. Defaults to 1000.
+        n (int, optional): Number of top similar embeddings to retrieve. Defaults to 5.
+
+    Returns:
+        List[Dict[str, Union[List[int], np.ndarray]]]: A list of dictionaries containing model IDs and their 
+        corresponding cosine similarity scores for the top N similar embeddings for each offer embedding.
+
+    Example:
+        >>> offer_embeddings = [np.array([0.1, 0.2, 0.3]), np.array([0.4, 0.5, 0.6])]
+        >>> model_embeddings = [np.array([0.2, 0.3, 0.4]), np.array([0.5, 0.6, 0.7])]
+        >>> model_ids = [123, 456]
+        >>> print(top_n_similar(offer_embeddings, model_embeddings, model_ids))
+            # Output: [{'model_ids': [123, 456], 'cosine_sims': array([0.99258333, 0.96832966])},
+            {'model_ids': [456, 123], 'cosine_sims': array([0.99964575, 0.99461155])}]
+    """
+
+    cosine_sims = cosine_similarity_batch(offer_embs, model_embs, batch_size)
+    top_n_list = []
+    for i in range(len(offer_embs)):
+        # Find the indices of the top N similar embeddings
+        top_n_indices = np.argsort(cosine_sims[i])[::-1][:n]
+        # Get the corresponding model IDs and cosine similarity scores for the top N similar embeddings
+        top_n_model_ids = [model_ids[i] for i in top_n_indices]
+        top_n_cosine_sims = cosine_sims[i][top_n_indices]
+        top_n_list.append({"model_ids": top_n_model_ids, "cosine_sims": top_n_cosine_sims})
+    return top_n_list
