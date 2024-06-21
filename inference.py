@@ -1,7 +1,7 @@
 import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-from interface import prepare_tsv, save_index, top_n_similar, Collection
+from interface import prepare_tsv, save_index, top_n_similar_by_index, Collection
 import pandas as pd
 import time
 
@@ -98,7 +98,7 @@ if __name__=='__main__':
 
         models_id = Collection(path=os.path.join(dst_fld, "tsv", f"{cat_id}_models_id.tsv"))
         offers, indices = offers_to_dict(df_offers, cat_id)
-        top_n = top_n_similar(offers, dst_fld, nranks, experiment, index_name, models_id, n)
+        top_n = top_n_similar_by_index(offers, dst_fld, nranks, experiment, index_name, models_id, n)
 
         df_offers = top_n_to_df(df_offers, indices, top_n, n_to_df)
 
