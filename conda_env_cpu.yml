@@ -20,3 +20,4 @@ dependencies:
     - flask
     - python-dotenv
     - scikit-learn
+    - pandas
