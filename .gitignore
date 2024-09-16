@@ -20,3 +20,7 @@ intro2updated.ipynb
 /050224_Timofey
 /accuracies
 /triples_X1_13_categories_use_ib_negatives_nway3_lr04
+/DATASET/train_triplets
+*.parquet
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/

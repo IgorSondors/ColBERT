@@ -171,7 +171,7 @@ def pair_scores(ckpt_fld: str, doc_maxlen: int, nbits: int, kmeans_niters: int, 
         batch_scores = []
         for i in range(num_batches):
             cnt += 1
-            print(f"batch: {cnt}/{num_batches*len(query)}")
+            # print(f"batch: {cnt}/{num_batches*len(query)}")
             start_idx = i * batch_size
             end_idx = min((i + 1) * batch_size, len(document))
             batch_document = document[start_idx:end_idx]
@@ -260,7 +260,7 @@ def get_query_emb_batch(sentences: List[str], checkpoint: Checkpoint, batch_size
     embeddings_list = []
     
     for i in range(0, len(sentences), batch_size2):
-        print(f"batch: {min(i+batch_size2, len(sentences))}/{len(sentences)}")
+        # print(f"batch: {min(i+batch_size2, len(sentences))}/{len(sentences)}")
 
         batch_sentences = sentences[i:i+batch_size2]
         embeddings = get_query_emb(batch_sentences, checkpoint, batch_size, is_mean)

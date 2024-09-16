@@ -23,7 +23,8 @@ import wandb
 
 def train(config: ColBERTConfig, triples, queries=None, collection=None):
     config.checkpoint = config.checkpoint or 'bert-base-uncased'
-
+    grad_clip = 2.0
+    
     if config.rank < 1:
         config.help()
 
@@ -82,7 +83,8 @@ def train(config: ColBERTConfig, triples, queries=None, collection=None):
             print(f"#> LR will use {config.warmup} warmup steps and linear decay over {config.maxsteps} steps.")
             scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=config.warmup,
                                                         num_training_steps=config.maxsteps)
-
+        # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=2000, gamma=0.5)
+        
         warmup_bert = config.warmup_bert
         if warmup_bert is not None:
             set_bert_grad(colbert, False)
@@ -132,6 +134,7 @@ def train(config: ColBERTConfig, triples, queries=None, collection=None):
 
                         log_scores = torch.nn.functional.log_softmax(scores, dim=-1)
                         loss = torch.nn.KLDivLoss(reduction='batchmean', log_target=True)(log_scores, target_scores)
+                        print("\n\t\t\tKLDivLoss\n")
                     else:
                         loss = nn.CrossEntropyLoss()(scores, labels[:scores.size(0)])
 
@@ -149,7 +152,9 @@ def train(config: ColBERTConfig, triples, queries=None, collection=None):
 
             train_loss = this_batch_loss if train_loss is None else train_loss
             train_loss = train_loss_mu * train_loss + (1 - train_loss_mu) * this_batch_loss
-
+            
+            torch.nn.utils.clip_grad_norm_(colbert.parameters(), max_norm=grad_clip)
+            
             amp.step(colbert, optimizer, scheduler)
             wandb.log({"batch_idx": batch_idx, "train_loss": train_loss, "learning_rate": optimizer.param_groups[0]['lr']})
             

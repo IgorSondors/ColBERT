@@ -57,48 +57,32 @@ load_index_with_mmap: Флаг, указывающий, следует ли за
 """
 
 # checkpoint = 'bert-base-multilingual-cased'
-# checkpoint = 'colbert-ir/colbertv2.0'
-checkpoint = '/mnt/vdb1/ColBERT/experiments/bert-base-multilingual-cased_dim_768_bsize_230_lr04_use_ib_negatives/none/2024-01/27/16.55.29/checkpoints/colbert-2998-finish'
+checkpoint = 'colbert-ir/colbertv2.0'
+
 if __name__=='__main__':
 
-    # triples="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_aug/triples_X1_13_categories_aug_shuffle.json"
-    # queries="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_aug/queries_train_13_categories_aug.tsv"
-    # collection="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_aug/documents_train_13_categories_aug.tsv"
-
-    # triples="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_nway_6/triples_X1_13_categories_aug_nway_6_shuffle.json"
-    # queries="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_nway_6/queries_train_13_categories_aug_nway_6.tsv"
-    # collection="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_nway_6/documents_train_13_categories_aug_nway_6.tsv"
-
-    # triples="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train/triples_X1_13_categories_shuffle.json"
-    # queries="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train/queries_train_13_categories.tsv"
-    # collection="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train/documents_train_13_categories.tsv"
-
-    # triples="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_filtered/triples_X1_13_categories_filtered_shuffle.json"
-    # queries="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_filtered/queries_train_13_categories_filtered.tsv"
-    # collection="/mnt/vdb1/Datasets/ColBERT_data/13_categories/train_filtered/documents_train_13_categories_filtered.tsv"
-
-    triples="/mnt/vdb1/Datasets/ColBERT_data/2801/train/triples_X1_2801_Apple_shuffle.json"
-    queries="/mnt/vdb1/Datasets/ColBERT_data/2801/train/queries_train_2801_Apple.tsv"
-    collection="/mnt/vdb1/Datasets/ColBERT_data/2801/train/documents_train_2801_Apple.tsv"
+    triples="/home/sondors.igor/documents/ColBERT/DATASET/train_triplets/15mln/triples_X1_v0_shuffle.json"
+    queries="/home/sondors.igor/documents/ColBERT/DATASET/train_triplets/15mln/queries_train_v0.tsv"
+    collection="/home/sondors.igor/documents/ColBERT/DATASET/train_triplets/15mln/documents_train_v0.tsv"
 
     # DocSettings:
-    doc_maxlen=180
-    dim=768#128
-    
+    doc_maxlen=300#180
+    # dim=768#128
+    dim= 128
     # TrainingSettings:
     use_ib_negatives=True
     save_every = None
-    root="/home/sondors/Documents/1234567"      # не работает
+    root="/home/sondors.igor/documents/ColBERT"      # не работает
     nway=2                                    # https://github.com/stanford-futuredata/ColBERT/issues/245
     lr=1e-04
-    bsize=230#128#40
+    bsize=50#128#40
     accumsteps=1                                # на сколько элементов из батча аккумулировать лосс
     amp = True                                  # MixedPrecisionManager
     n_triplets = sum(1 for _ in open(triples))  # количество строк в triples.json
     steps_per_epoch = int(n_triplets/bsize)     # количество батчей в эпохе. ColBERT обучается по всем строкам файла один раз без эпох
     warmup=0                                    # через сколько шагов сделать warmup до изначального lr
 
-    experiment = "2801_lr04_bsize_230"
+    experiment = "colbertv2_lr04_bs_50_grad_clip_doc_maxlen"
     with Run().context(RunConfig(nranks=1, experiment=experiment)): # nranks - число видеокарт
         config = ColBERTConfig(bsize=bsize, 
                                 lr=lr, 
@@ -120,3 +104,8 @@ if __name__=='__main__':
 
         checkpoint_path = trainer.train(checkpoint=checkpoint)
         print(f"Saved checkpoint to {checkpoint_path}...")
+
+# config = ColBERTConfig(bsize=32, lr=1e-05, warmup=20_000, doc_maxlen=180, dim=128, attend_to_mask_tokens=False, nway=64, accumsteps=1, similarity='cosine', use_ib_negatives=True)
+# trainer = Trainer(triples=triples, queries=queries, collection=collection, config=config)
+
+# trainer.train(checkpoint='colbert-ir/colbertv1.9') 
